@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FaGithub, FaPlus } from 'react-icons/fa';
+import { FaGithub, FaPlus, FaSpinner } from 'react-icons/fa';
 import { Container, Form, SubmitButton } from './styles';
 
 import api from '../../services/api';
@@ -8,6 +8,7 @@ export default function Main(){
 
   const[newRepo, setNewRepo] = useState('');
   const[repositorios, setRepositorios] = useState([]);
+  const[loading, setLoading] = useState(false);
 
   function handleInputChange(e) {
     setNewRepo(e.target.value);
@@ -16,17 +17,24 @@ export default function Main(){
   //Ao algum dos estados mudarm o callback será chamado e executará as funções contidas dentro
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    setLoading(true);
     async function submit() {
-      const response = await api.get(`repos/${newRepo}`);
-
-      const data = {
-        name: response.data.full_name,
-      }
-
-      //Mantém o que já tinha e adiciona mais
-      setRepositorios([ ...repositorios, data ]);
-      setNewRepo('');
-    }
+        try {
+            const response = await api.get(`repos/${newRepo}`);
+    
+            const data = {
+              name: response.data.full_name,
+            }
+    
+            //Mantém o que já tinha e adiciona mais
+            setRepositorios([ ...repositorios, data ]);
+            setNewRepo('');
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+      }  
 
     submit();
   }, [newRepo, repositorios])
@@ -43,8 +51,15 @@ export default function Main(){
       <Form onSubmit={handleSubmit}>
         <input type="text" placeholder='Adicionar Repositórios' value={newRepo} onChange={handleInputChange}/>
 
-        <SubmitButton>
-          <FaPlus color='#fff' size={14} />
+        <SubmitButton loading={loading ? 1 : 0}>
+          {
+            loading ? (
+              <FaSpinner color='#fff' size={14}  />
+            ) : (
+              <FaPlus color='#fff' size={14} />
+            )
+          }
+          
         </SubmitButton>
       </Form>
 

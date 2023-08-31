@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, {keyframes, css} from 'styled-components';
 
 export const Container = styled.div`
     max-width: 700px;
@@ -34,9 +34,23 @@ export const Form = styled.form`
     }
 `;
 
-export const SubmitButton = styled.button.attrs({
-    type: 'submit'
-})`
+/**
+ * Criando animação do botão
+ */
+
+const spin = keyframes`
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+`;
+
+export const SubmitButton = styled.button.attrs((props) => ({
+    type: 'submit',
+    disabled: props.loading //Desabilitando o botão
+}))`
     background: #0d2636;
     border: 0;
     border-radius: 4px;
@@ -45,4 +59,23 @@ export const SubmitButton = styled.button.attrs({
     display: flex;
     justify-content: center;
     align-items: center;
+
+    /* Aplicando estilo quando for disabled */
+    &[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    //Quando estiver carregando, irá utilizar o código css abaixo
+    ${props => props.loading && 
+        //Criando um css nativo dentro do styled
+        css`
+        svg{
+            animation: ${ spin } 2s linear infinite;
+        }
+        `
+    }
+
+    }
+    
 `;
