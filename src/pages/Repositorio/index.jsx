@@ -1,6 +1,6 @@
 import { useParams} from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { Container, Owner, Loading, BackButton, IssuesList, PageActions } from "./styles";
+import { Container, Owner, Loading, BackButton, IssuesList, PageActions, FilterList } from "./styles";
 import { FaArrowLeft } from 'react-icons/fa';
 import api from '../../services/api';
 
@@ -12,6 +12,11 @@ function Repositorio() {
     const[ issues, setIssues ] = useState([]);
     const[ loading, setLoading ] = useState(true);
     const[ page, setPage ] = useState(1);
+    const[ filters, setFilters ] = useState([
+        { state: 'all', label: 'Todas', active: true },
+        { state: 'open', label: 'Abertas', active: false },
+        { state: 'closed', label: 'Fechadas', active: false },
+    ]);
 
 
     useEffect(() => {
@@ -85,6 +90,18 @@ function Repositorio() {
                 <h1>{ repo.name }</h1>
                 <p>{ repo.description}</p>
             </Owner>
+            <FilterList>
+                {
+                    filters.map((filter, index) => (
+                        <button 
+                            type="button" 
+                            key={filter.label} 
+                            onClick={() => {}}>
+                                {filter.label}
+                        </button>
+                    ))
+                }
+            </FilterList>
             <IssuesList>
                 {
                     issues.map((issue) => (
