@@ -1,6 +1,6 @@
 import { useParams} from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { Container, Owner, Loading, BackButton, IssuesList } from "./styles";
+import { Container, Owner, Loading, BackButton, IssuesList, PageActions } from "./styles";
 import { FaArrowLeft } from 'react-icons/fa';
 import api from '../../services/api';
 
@@ -11,6 +11,7 @@ function Repositorio() {
     const[ repo, setRepo ] = useState({});
     const[ issues, setIssues ] = useState([]);
     const[ loading, setLoading ] = useState(true);
+    const[ page, setPage ] = useState(1);
 
 
     useEffect(() => {
@@ -43,6 +44,28 @@ function Repositorio() {
         load();
 
     }, [repositorio]);
+
+    useEffect(() => {
+        async function loadIssue() {
+          const response = await api.get(`/repos/${decodeURIComponent(repositorio)}/issues`, {
+                //axios permite passar parâmetros desta forma
+                params: {
+                    state: 'open',
+                    page: page,
+                    per_page: 5
+                }
+            });
+
+            setIssues(response.data);
+
+        }
+
+        loadIssue();
+    }, [page]);
+
+    function handlePage(action) {
+        setPage(action === 'back' ? page - 1 : page + 1);
+    }
 
     if(loading){
         return(
@@ -84,6 +107,13 @@ function Repositorio() {
                     ))
                 }
             </IssuesList>
+
+            <PageActions>
+
+                <button type="button" disabled={page < 2} onClick={() => handlePage('back')}>Voltar</button>
+                <button type="button" onClick={() => handlePage('next')}>Proximo</button>
+            </PageActions>
+
         </Container>
     )
 }
