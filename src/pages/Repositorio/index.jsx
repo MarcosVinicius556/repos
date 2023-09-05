@@ -17,6 +17,7 @@ function Repositorio() {
         { state: 'open', label: 'Abertas', active: false },
         { state: 'closed', label: 'Fechadas', active: false },
     ]);
+    const[ filterIndex, setFilterIndex ] = useState(0);
 
 
     useEffect(() => {
@@ -34,7 +35,9 @@ function Repositorio() {
                 api.get(`/repos/${decodeURIComponent(repositorio)}/issues`, {
                     //axios permite passar parâmetros desta forma
                     params: {
-                        state: 'open',
+                        //Buscando na lista de filtros o que esteja ativo, e então retorna o seu valor
+                        //Isto também é conhecido como predicate (<> => condicao)
+                        state: filters.find(f => f.active).state,
                         per_page: 5
                     }
                 }),
@@ -55,7 +58,7 @@ function Repositorio() {
           const response = await api.get(`/repos/${decodeURIComponent(repositorio)}/issues`, {
                 //axios permite passar parâmetros desta forma
                 params: {
-                    state: 'open',
+                    state: filters[filterIndex].state,
                     page: page,
                     per_page: 5
                 }
@@ -66,10 +69,14 @@ function Repositorio() {
         }
 
         loadIssue();
-    }, [page]);
+    }, [filterIndex, filters, repositorio, page]);
 
     function handlePage(action) {
         setPage(action === 'back' ? page - 1 : page + 1);
+    }
+
+    function handleFilter(index) {
+        setFilterIndex(index);
     }
 
     if(loading){
@@ -90,13 +97,13 @@ function Repositorio() {
                 <h1>{ repo.name }</h1>
                 <p>{ repo.description}</p>
             </Owner>
-            <FilterList>
+            <FilterList active={filterIndex}>
                 {
                     filters.map((filter, index) => (
                         <button 
                             type="button" 
                             key={filter.label} 
-                            onClick={() => {}}>
+                            onClick={() => handleFilter(index)}>
                                 {filter.label}
                         </button>
                     ))
